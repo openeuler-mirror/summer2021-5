@@ -1,0 +1,97 @@
+#!/bin/sh
+#
+# openstack-swift-account-auditor: swift account auditor
+#
+# chkconfig: - 98 02
+# description: Account auditor for swift.
+# pidfile: /var/run/swift/account-auditor.pid
+# config:  /etc/swift/account-server.conf
+
+### BEGIN INIT INFO
+# Provides:          openstack-swift-account-auditor
+# Required-Start:    $remote_fs
+# Required-Stop:     $remote_fs
+# Default-Stop:      0 1 6
+# Short-Description: Swift account auditor
+# Description:       Account auditor for swift.
+### END INIT INFO
+
+# Do not load RH compatibility interface.
+WITHOUT_RC_COMPAT=1
+
+# Source function library.
+. /etc/init.d/functions
+
+
+DAEMON=account-auditor
+PIDFILE=/var/run/swift/$DAEMON.pid
+LOCKFILE=/var/lock/subsys/openstack-swift-$DAEMON
+
+
+RETVAL=0
+NAME="Swift Account Auditor"
+
+
+start() {
+	start_daemon --expect-user swift --pidfile "$PIDFILE" --lockfile "$LOCKFILE" --displayname "$NAME" -- swift-init $DAEMON start
+	RETVAL=$?
+	return $RETVAL
+}
+
+stop() {
+	swift-init $DAEMON stop
+	RETVAL=$?
+	rm -f "$LOCKFILE"
+	return $RETVAL
+}
+
+restart() {
+	stop
+	start
+}
+
+reload() {
+	swift-init $DAEMON reload
+	RETVAL=$?
+	return $RETVAL
+}
+
+
+case "$1" in
+start)
+	start
+	;;
+stop)
+	stop
+	;;
+restart)
+	restart
+	;;
+reload)
+	restart
+	;;
+condstop)
+	if [ -e "$LOCKFILE" ]; then
+		stop
+	fi
+	;;
+condrestart)
+	if [ -e "$LOCKFILE" ]; then
+		restart
+	fi
+	;;
+condreload)
+	if [ -e "$LOCKFILE" ]; then
+		reload
+	fi
+	;;
+status)
+	swift-init $DAEMON status
+	RETVAL=$?
+	;;
+*)
+	msg_usage "${0##*/} {start|stop|reload|restart|condstop|condrestart|condreload|status}"
+	RETVAL=1
+esac
+
+exit $RETVAL

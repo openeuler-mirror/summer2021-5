@@ -1,7 +1,7 @@
-# Summer2021-No.5 为openEuler提供OpenStack Swift软件包
+# openstack-swift
 
 #### Description
-https://gitee.com/openeuler-competition/summer-2021/issues/I3DUTE
+OpenStack Swift is a distributed object storage system designed to scale from a single machine to thousands of servers.
 
 #### Software Architecture
 Software architecture description
